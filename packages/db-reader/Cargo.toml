@@ -1,0 +1,12 @@
+[package]
+name = "db_reader"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+chrono = { version = "0.4", features = ["serde"] }
+dotenv = "0.15"
+postgres-types = { version = "0.2", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tokio-postgres = { version = "0.7", features = ["with-chrono-0_4"] }
