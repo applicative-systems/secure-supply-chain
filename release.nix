@@ -5,15 +5,6 @@ let
       (import ./nix/overlay.nix)
     ];
   };
-
-  iso = (pkgs.nixos [
-    ./nix/modules/messages.nix
-    ./nix/profiles/application/messages.nix
-    ./nix/profiles/platform/iso.nix
-    ./nix/profiles/platform/no-ghc.nix
-    ./nix/profiles/platform/size-reduction.nix
-  ]).isoImage;
-
 in
 
 {
@@ -24,5 +15,5 @@ in
 
   integration-test = pkgs.testers.runNixOSTest ./nix/integration-test.nix;
 
-  inherit iso;
+  iso = (pkgs.callPackage ./nix/iso.nix { }).isoImage;
 }

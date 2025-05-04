@@ -60,8 +60,28 @@ $ nix-build path/to/original/nix/expression.nix
 
 Quick and easy:
 
-```sh
+```console
 $ docker run -it --network=none -v /path/to/your/repo/with/closure:/src nixos/nix
 # nix-store --import < /src/source-export.closure
 # nix-build /src --option substituters ""
+```
+
+### Flakes Version
+
+This also works with flakes:
+
+For the export, run:
+
+```console
+$ ./scripts/source-closure-flake.sh
+```
+
+For the offline rebuild, run:
+
+```console
+$ docker run -it --network=none -v /path/to/your/repo/with/closure:/src nixos/nix
+# nix-store --import < /src/source-export.closure
+# nix-build /src --option substituters ""
+# git config --global --add safe.directory /src
+# nix build /src -L --option substituters "" --extra-experimental-features "nix-command flakes"
 ```
