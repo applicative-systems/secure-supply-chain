@@ -9,7 +9,8 @@ let
   iso = (pkgs.nixos [
     ./nix/modules/messages.nix
     ./nix/profiles/application/messages.nix
-    ./nix/profiles/platform/iso.nix
+    ./nix/profiles/platform/iso-mini.nix
+    ./nix/profiles/platform/size-reduction.nix
   ]).isoImage;
 
 in
