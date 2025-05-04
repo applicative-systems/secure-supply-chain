@@ -1,4 +1,9 @@
-{ modulesPath, lib, pkgs, ... }:
+{
+  modulesPath,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -13,7 +18,7 @@
   # let's disable a few settings that are either on by default or enabled by
   # the minimal installer
 
-  boot.supportedFilesystems = lib.mkForce [];
+  boot.supportedFilesystems = lib.mkForce [ ];
   environment.systemPackages = lib.mkForce [
     pkgs.systemd
     pkgs.bash

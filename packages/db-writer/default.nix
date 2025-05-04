@@ -1,9 +1,10 @@
-{ stdenv
-, lib
-, libpqxx
-, boost
-, cmake
-, pkg-config
+{
+  stdenv,
+  lib,
+  libpqxx,
+  boost,
+  cmake,
+  pkg-config,
 }:
 
 stdenv.mkDerivation {
@@ -17,8 +18,14 @@ stdenv.mkDerivation {
     ];
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ boost libpqxx ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    boost
+    libpqxx
+  ];
 
   installPhase = ''
     mkdir -p $out/bin

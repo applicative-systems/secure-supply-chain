@@ -6,17 +6,19 @@
 {
   nixpkgs.overlays = [
     (final: prev: {
-      shellcheck-minimal = (prev.runCommand "shellcheck" {} ''
-        mkdir -p $out/bin
-        cat > $out/bin/shellcheck <<EOF
-        #!${final.bash}/bin/bash
-        true
-        EOF
-        chmod +x $out/bin/shellcheck
-      '') // {
-        compiler = final.hello;
-        meta.mainProgram = "shellcheck";
-      };
+      shellcheck-minimal =
+        (prev.runCommand "shellcheck" { } ''
+          mkdir -p $out/bin
+          cat > $out/bin/shellcheck <<EOF
+          #!${final.bash}/bin/bash
+          true
+          EOF
+          chmod +x $out/bin/shellcheck
+        '')
+        // {
+          compiler = final.hello;
+          meta.mainProgram = "shellcheck";
+        };
     })
   ];
 }

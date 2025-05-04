@@ -5,14 +5,16 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     let
       system = "x86_64-linux";
       pkgs = import inputs.nixpkgs {
         inherit system;
         overlays = [ inputs.self.overlays.default ];
       };
-    in {
+    in
+    {
       packages.${system} = {
         default = (pkgs.callPackage ./nix/iso.nix { }).isoImage;
         inherit (pkgs)

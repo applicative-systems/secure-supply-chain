@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   inherit (config.services.messages)
     user
@@ -7,7 +12,10 @@ let
     ;
 in
 {
-  networking.firewall.allowedTCPPorts = [ reader-port writer-port ];
+  networking.firewall.allowedTCPPorts = [
+    reader-port
+    writer-port
+  ];
 
   services.postgresql = {
     enable = true;

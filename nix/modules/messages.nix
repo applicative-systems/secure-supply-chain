@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   cfg = config.services.messages;
@@ -33,7 +38,10 @@ in
 
     systemd.services.db-writer = {
       wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "postgresql.service" ];
+      after = [
+        "network.target"
+        "postgresql.service"
+      ];
       serviceConfig = {
         ExecStart = "${pkgs.db-writer}/bin/db-writer ${builtins.toString cfg.writer-port}";
         User = cfg.user;
