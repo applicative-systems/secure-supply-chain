@@ -1,87 +1,77 @@
 # Demonstrably Secure Software Supply Chain
 
-This repository demonstrates how to define a complex system image with NixOS.
-As an additional step after building and testing it, it demonstrates how to
-export all sources of the image to rebuild it offline from scratch.
+This repository provides a robust solution for organizations needing to prove
+the integrity of their software supply chain.
+Using NixOS, it demonstrates how to define a complex system image, verify that
+all source inputs are untampered, and rebuild the image offline from scratch.
+This ensures auditable, tamper-proof software builds—ideal for regulatory
+compliance or high-security environments.
 
-This can then be used as a proof to authorities that *this set of sources* led
-to *this image* without any manipulation inbetween.
+## Who Benefits?
 
-"All sources" means not only the sources of the applications that go into the
-image, but also all sources of all the toolchains that were needed to build it.
-(Yes, you can prove that the compiler of your compiler has not been tampered
-with! This is a very thorough method of proving)
+- **Developers and DevOps Teams**: Ensure reproducible, secure builds.
+- **Compliance Officers**: Provide verifiable proof for audits.
+- **Security Professionals**: Mitigate supply chain attacks with full
+  transparency.
 
-The exported sources (a few GB of source tarballs) could be realistically
-audited by third parties.
+## Why This Matters
 
-## Content
+- **Prove Integrity**: Guarantee that this exact set of sources produced this
+  image without third-party interference.
+- **Comprehensive Source Tracking**: Includes all application sources and
+  toolchains (e.g., compilers and their compilers) for complete transparency.
+- **Auditable Outputs**: Exports all sources (a few GB of tarballs) for
+  third-party audits, ensuring trust and accountability.
 
-This repository defines a somewhat minimal NixOS image with some halfway
-realistic demo applications:
+## What’s Included
 
-- Database writer C++ app
-  - Listens on a TCP port and writes input to a postgres DB
-- Database reader Rust app
-  - Listens on an HTTP port and dumps all content in the postgres DB to the client
+A minimal NixOS image with realistic demo applications:
 
-The booted ISO image runs these services.
+- **C++ Database Writer**: Listens on a TCP port, writes input to a PostgreSQL
+  database.
+- **Rust Database Reader**: Serves database content over HTTP.
 
-## Create Offline Source-Only Closure
+The booted ISO runs these services, showcasing a secure, reproducible build.
 
-"Source-Only" means:
+## Key Features
 
-- all source tarballs (including everything, even the source of the compilers' compiler)
-- all Nix expressions needed to evaluate the output on an offline machine again
-- bootstrap tarball ([definition](https://github.com/NixOS/nixpkgs/blob/master/pkgs/stdenv/linux/make-bootstrap-tools.nix))
+### Create an Offline Source-Only Closure
 
-Create the offline closure of the image:
+Captures all source tarballs, Nix expressions, and bootstrap tools needed for offline rebuilding.
 
 ```console
 $ ./scripts/source-closure.sh
 ```
 
-You will now find the source closure in the file `source-export.closure`
+Output: source-export.closure—a verifiable package for audits.
 
-## Try out/Demonstrate offline rebuild of everything
+### Rebuild Offline with Confidence
 
-Create/find some system that has Nix installed but is completely offline.
-Then, add the source closure and original nix expression that defines your
-build target, to the system via USB, for example.
-
-Reproduce the whole build in two steps:
+Reproduce the build on an offline system (e.g., via USB transfer):
 
 ```console
-$ nix-store --import < /path/to/source-export.closure
-$ nix-build path/to/original/nix/expression.nix
+$ nix-store --import < source-export.closure
+$ nix-build
 ```
 
-### Try it in an offline Docker image
+### Test in an Offline Docker Environment
 
-Quick and easy:
+Validate the process without a separate machine:
 
 ```console
-$ docker run -it --network=none -v /path/to/your/repo/with/closure:/src nixos/nix
+$ docker run -it --network=none -v /path/to/repo:/src nixos/nix
 # nix-store --import < /src/source-export.closure
 # nix-build /src --option substituters ""
 ```
 
-### Flakes Version
+### Flakes Support
 
-This also works with flakes:
-
-For the export, run:
+Prefer Nix flakes? Export and rebuild with:
 
 ```console
 $ ./scripts/source-closure-flake.sh
-```
-
-For the offline rebuild, run:
-
-```console
-$ docker run -it --network=none -v /path/to/your/repo/with/closure:/src nixos/nix
+$ docker run -it --network=none -v /path/to/repo:/src nixos/nix
 # nix-store --import < /src/source-export.closure
-# nix-build /src --option substituters ""
 # git config --global --add safe.directory /src
 # nix build /src -L --option substituters "" --extra-experimental-features "nix-command flakes"
 ```
