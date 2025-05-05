@@ -17,8 +17,8 @@ readarray -t evaluationPaths < <(nix-instantiate \
   --eval \
   --strict \
   --json \
-  -E "builtins.map builtins.toString (builtins.attrValues (import ./$sourcesNixFile {}))" \
-  | jq -r .[])
+  -E "builtins.map builtins.toString (builtins.attrValues (import ./$sourcesNixFile {}))" |
+  jq -r .[])
 
 rootDerivation=$(nix-instantiate --read-write-mode "$defaultNixFile")
 
@@ -26,8 +26,8 @@ rootDerivation=$(nix-instantiate --read-write-mode "$defaultNixFile")
 # 1. query the compile-time dependency tree of the image build
 # 2. filter and keep only the fixed-output derivations
 # 3. query derivation, output path, and original download URL
-readarray -t sourceClosurePaths < <(nix derivation show -r "$rootDerivation" \
-  | jq -r 'to_entries[] | select(.value.outputs.out.hash != null) | .key + " " + .value.outputs.out.path + " " + .value.env.urls')
+readarray -t sourceClosurePaths < <(nix derivation show -r "$rootDerivation" |
+  jq -r 'to_entries[] | select(.value.outputs.out.hash != null) | .key + " " + .value.outputs.out.path + " " + .value.env.urls')
 
 mapfile -t sourceDrvPaths < <(printf "%s\n" "${sourceClosurePaths[@]}" | awk '{print $1}')
 mapfile -t sourceOutPaths < <(printf "%s\n" "${sourceClosurePaths[@]}" | awk '{print $2}')
@@ -38,7 +38,7 @@ nix-store -r "${sourceDrvPaths[@]}" 2>/dev/null
 
 closureSizes=()
 for line in "${sourceClosurePaths[@]}"; do
-  IFS=' ' read -r drvPath outPath url <<< "$line"
+  IFS=' ' read -r drvPath outPath url <<<"$line"
   sizeMb=$(du -sm "$outPath" 2>/dev/null | awk '{print $1}')
   closureSizes+=("$drvPath $outPath $url $sizeMb")
 done
@@ -47,14 +47,14 @@ readarray -t sortedClosureSizes < <(printf "%s\n" "${closureSizes[@]}" | sort -n
 
 N=10
 lastTenIndex=$((${#sortedClosureSizes[@]} - N))
-if (( lastTenIndex < 0 )); then
+if ((lastTenIndex < 0)); then
   lastTenIndex=0
 fi
 
 echo "$N biggest closure sizes:"
 
 for line in "${sortedClosureSizes[@]:lastTenIndex}"; do
-  IFS=' ' read -r drvPath outPath url sizeMb <<< "$line"
+  IFS=' ' read -r drvPath outPath url sizeMb <<<"$line"
   printf '\nDownload: %s\nSize:     %s MB\nWhy do we depend on it:\n' "$url" "$sizeMb"
   nix why-depends "$rootDerivation" "$drvPath"
 done
@@ -65,6 +65,6 @@ echo ""
 # this can later be imported in a secure offline environment and rebuilt
 # from source
 nix-store --export "${evaluationPaths[@]}" "${sourceOutPaths[@]}" \
-  > source-export.closure
+  >source-export.closure
 
 echo "Final source closure size: $(du -sh source-export.closure)"
