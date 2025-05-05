@@ -6,16 +6,22 @@ set -euo pipefail
 # as otherwise, we couldn't evaluate everything on the offline machine later.
 readarray -t evaluationPaths < <(nix flake archive --json | jq -r '.. | .path? | select(. != null)')
 
-rootDerivation=$(nix-store -q -d $(nix eval --raw))
+rootDerivation=$(nix-store -q -d "$(nix build --print-out-paths)")
 
 # Now we do the following:
 # 1. query the compile-time dependency tree of the image build
 # 2. filter and keep only the fixed-output derivations
-readarray -t sourceClosurePaths < <(nix derivation show -r "$rootDerivation" \
+readarray -t sourceClosurePaths < <(nix derivation show -r \
   | jq -r 'to_entries[] | select(.value.outputs.out.hash != null) | .key + " " + .value.outputs.out.path + " " + .value.env.urls')
 
-closureSizes=()
+mapfile -t sourceDrvPaths < <(printf "%s\n" "${sourceClosurePaths[@]}" | awk '{print $1}')
+mapfile -t sourceOutPaths < <(printf "%s\n" "${sourceClosurePaths[@]}" | awk '{print $2}')
 
+# we need to realize all these store paths to disk, otherwise we can't run any
+# analysis on them
+nix-store -r "${sourceDrvPaths[@]}" 2>/dev/null
+
+closureSizes=()
 for line in "${sourceClosurePaths[@]}"; do
   IFS=' ' read -r drvPath outPath url <<< "$line"
   sizeMb=$(du -sm "$outPath" 2>/dev/null | awk '{print $1}')
