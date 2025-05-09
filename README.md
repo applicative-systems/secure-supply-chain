@@ -43,20 +43,29 @@ Captures all source tarballs, Nix expressions, and bootstrap tools needed for of
 $ ./scripts/source-closure.sh
 ```
 
-Output: source-export.closure—a verifiable package for audits.
+Output: `source-export.closure`
+
+This file can be imported into an offline system.
+It can also be used for audit purposes.
 
 ### Rebuild Offline with Confidence
 
-Reproduce the build on an offline system (e.g., via USB transfer):
+Reproduce the build on an offline system (e.g., via USB transfer)
+that has never downloaded anything from a binary cache and hence
+will have to rebuild everything from sources:
 
 ```console
 $ nix-store --import < source-export.closure
 $ nix-build
 ```
 
+(We are not saying that Docker is good enough to perform supply chain
+proofs - this is just for demoing the method itself.)
+
 ### Test in an Offline Docker Environment
 
-Validate the process without a separate machine:
+Docker is a quick and simple way to simulate a fresh offline environment 
+without having to setup a new computer or VM:
 
 ```console
 $ docker run -it --network=none -v /path/to/repo:/src nixos/nix
@@ -66,7 +75,7 @@ $ docker run -it --network=none -v /path/to/repo:/src nixos/nix
 
 ### Flakes Support
 
-Prefer Nix flakes? Export and rebuild with:
+Prefer Nix flakes? These commands work with flakes in the Docker scenario:
 
 ```console
 $ ./scripts/source-closure-flake.sh
