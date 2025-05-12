@@ -7,6 +7,9 @@ all source inputs are untampered, and rebuild the image offline from scratch.
 This ensures auditable, tamper-proof software builds—ideal for regulatory
 compliance or high-security environments.
 
+Please also have a look at our accompanying blog article:
+https://nixcademy.com/posts/secure-supply-chain-with-nix/
+
 ## Who Benefits?
 
 - **Developers and DevOps Teams**: Ensure reproducible, secure builds.
