@@ -16,7 +16,8 @@
     in
     {
       packages.${system} = {
-        default = (pkgs.callPackage ./nix/iso.nix { }).isoImage;
+        default = inputs.self.packages.${system}.iso;
+        iso = (pkgs.callPackage ./nix/iso.nix { }).isoImage;
         inherit (pkgs)
           db-reader
           db-writer
